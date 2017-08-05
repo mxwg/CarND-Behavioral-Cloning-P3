@@ -24,6 +24,9 @@ for line in lines:
 	images.append(image)
 	measurement = float(line[3])
 	measurements.append(measurement)
+	# add flipped images
+	images.append(cv2.flip(image,1))
+	measurements.append(measurement*-1.0)
 
 assert len(images) == len(measurements)
 print("Imported {} samples in {:.2f}s.".format(len(images), time.time()-t1))
