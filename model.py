@@ -35,7 +35,7 @@ X_train = np.array(images)
 y_train = np.array(measurements)
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda
+from keras.layers import Flatten, Dense, Lambda, Cropping2D
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 
 def simple_model():
@@ -45,9 +45,11 @@ def simple_model():
 	model.add(Dense(1))
 	return model
 
-def le_net():
+def le_net(cropping = False):
 	model = Sequential()
 	model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160,320,3)))
+	if cropping:
+		model.add(Cropping2D(cropping=((50,20), (0,0)), input_shape=(160,320,3)))
 	model.add(Convolution2D(6,5,5,activation="relu"))
 	model.add(MaxPooling2D())
 	model.add(Convolution2D(6,5,5,activation="relu"))
@@ -58,7 +60,7 @@ def le_net():
 	model.add(Dense(1))
 	return model
 
-model = le_net()
+model = le_net(True)
 
 model.compile(loss='mse', optimizer='adam')
 model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=5)
