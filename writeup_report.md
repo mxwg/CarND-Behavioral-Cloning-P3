@@ -1,5 +1,11 @@
 # **Behavioral Cloning Project**
 
+[//]: # (Image References)
+
+[model]: ./images/model.png "Modified Nvidia Model"
+[original]: ./images/example_image.png "An example image"
+[cropped]: ./images/example_image_cropped.png "Cropped version of the example image"
+
 The goals / steps of this project are the following:
 * Use the simulator to collect data of good driving behavior
 * Build, a convolution neural network in Keras that predicts steering angles from images
@@ -82,9 +88,47 @@ The speed of the vehicle was adapted from 9 to 25 in drive.py.
 
 #### Final model architecture
 
-The final model architecture is a modified Nvidia architecture as described above.
+The final model architecture is based on the Nvidia model.
+The input image to the network is of size 320x90 pixels.
+The original, the cropped and the normalized image can be seen in the section below.
+
+The other modification to the Nvidia network was the division of the depth of all convolutional layers by two, to avoid overfitting and speed up training.
+The Nvidia network consists of 5 convolutional layers of decreasing height and width, but increasing depth.
+The first layer begins with the cropped input size of 320x90 and 3 color channels, while the last layer has a size of 17x3 with depth 32.
+Each convolutional layer is followed by a max pooling layer that halves the height and width in each layer.
+The last max pooling layer is flattened and connected to a fully connected layer of size 100, which connects to 50 and 10 neurons before calculating a single steering angle prediction.
+
+The following table shows the structure of the network.
+
+|Layer                  | Output Shape (height, width, depth) |           
+|-----------------------|-------------------------------------|
+|(normalization layer)  | (160, 320, 3)                       |     
+|(cropping layer)       | (90, 320, 3)                        |     
+|Conv2D                 | (86, 316, 12)                       |     
+|MaxPooling2            | (43, 158, 12)                       |     
+|Conv2D                 | (39, 154, 18)                       |     
+|MaxPooling2            | (19, 77, 18)                        |     
+|Conv2D                 | (17, 75, 24)                        |     
+|MaxPooling2            | (8, 37, 24)                         |     
+|Conv2D                 | (6, 35, 32)                         |     
+|MaxPooling2            | (3, 17, 32)                         |     
+|Conv2D                 | (3, 17, 32)                         |     
+|Flatten                | (1632)                              |     
+|Fully connected        | (100)                               |     
+|Fully connected        | (50)                                |     
+|Fully connected        | (10)                                |     
+|Fully connected        | (1)                                 |     
+
+Additionally, there is a Keras visualization below.
+
+![Modified Nvidia Model][model]
 
 #### Creation of the training set and the training process
+
+Below is an example image from the training dataset, both in the original and in the cropped version that comprised the input to the network.
+
+![Original image][original]
+![Cropped image][cropped]
 
 The additional curve runs were recorded in the following way:
 I drove to before the beginning of the curve and stayed on the side of the road. 

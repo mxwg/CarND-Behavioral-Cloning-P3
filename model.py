@@ -8,6 +8,8 @@ from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 
+create_images = True
+
 def nvidia(cropping=True):
 	"""Create a Nvidia convolutional network with reduced number of convolutional layers."""
 	model = Sequential()
@@ -32,6 +34,10 @@ def nvidia(cropping=True):
 
 model = nvidia()
 model.summary()
+if create_images:
+	from keras.utils import plot_model
+	plot_model(model, to_file='model.png', show_shapes=True)
+	print("Wrote model.png.")
 
 def use_measurement_anyway():
 	return random.randint(0, 2) < 1 # use a third of measurements
@@ -82,6 +88,16 @@ for current_dir in data_dirs:
 	if skipped > 0:
 		print("Skipped {} images with steering of zero.".format(skipped))
 print("\n\n")
+
+if create_images:
+	n = 1520
+	# Save example images
+	example = images[n]
+	example_cropped = example[50:160-20,:]
+	import scipy.misc
+	scipy.misc.imsave('example_image.png', example)
+	scipy.misc.imsave('example_image_cropped.png', example_cropped)
+	print("Wrote example images.")
 
 # Set up the training data
 X_train = np.array(images)
