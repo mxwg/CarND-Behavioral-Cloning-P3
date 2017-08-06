@@ -61,13 +61,13 @@ model.summary()
 def should_use_measurement():
 	return random.randint(0, 2) < 1 # use a third of measurements
 
-data_dir = "/home/mw/data"
+#data_dir = "/home/mw/data"
 #data_dir = "/home/mw/training2"
 
+steering_correction = 0.1
 data_dir_prefix = "/home/mw/p3"
 data_dirs = ["data",
-			 "recovery",
-			 "training2",
+			 #"recovery",
 			]
 
 images = []
@@ -88,15 +88,28 @@ for current_dir in data_dirs:
 	for line in lines:
 		source_path = line[0]
 		filename = source_path.split('/')[-1]
+		image_left = cv2.imread(os.path.join(data_dir, "IMG", line[1].split('/')[-1]))
+		image_right = cv2.imread(os.path.join(data_dir, "IMG", line[2].split('/')[-1]))
 		current_path = os.path.join(data_dir, "IMG", filename)
 		image = cv2.imread(current_path)
 		measurement = float(line[3])
+		measurement_left = measurement + steering_correction
+		measurement_right = measurement - steering_correction
 		if measurement != 0.0 or should_use_measurement():
 			measurements.append(measurement)
 			images.append(image)
 			# add flipped images
 			images.append(cv2.flip(image,1))
 			measurements.append(measurement*-1.0)
+			# add left/right images
+			measurements.append(measurement_left)
+			images.append(image_left)
+			measurements.append(measurement_right)
+			images.append(image_right)
+			measurements.append(-1.0*measurement_left)
+			images.append(cv2.flip(image_left,1))
+			measurements.append(-1.0*measurement_right)
+			images.append(cv2.flip(image_right,1))
 		else:
 			skipped += 1
 
