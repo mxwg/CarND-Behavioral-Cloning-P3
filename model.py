@@ -31,20 +31,20 @@ def le_net(cropping = False):
 	return model
 
 def nvidia(cropping=True):
-	keep_prob = 0.5
+	keep_prob = 1.0
 	model = Sequential()
 	model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160,320,3)))
 	if cropping:
 		model.add(Cropping2D(cropping=((50,20), (0,0)), input_shape=(160,320,3)))
-	model.add(Convolution2D(24,kernel_size=(5,5),activation="relu",padding='valid'))
+	model.add(Convolution2D(24//2,kernel_size=(5,5),activation="relu",padding='valid'))
 	model.add(MaxPooling2D())
-	model.add(Convolution2D(36,kernel_size=(5,5),activation="relu",padding='valid'))
+	model.add(Convolution2D(36//2,kernel_size=(5,5),activation="relu",padding='valid'))
 	model.add(MaxPooling2D())
-	model.add(Convolution2D(48,kernel_size=(3,3),activation="relu",padding='valid'))
+	model.add(Convolution2D(48//2,kernel_size=(3,3),activation="relu",padding='valid'))
 	model.add(MaxPooling2D())
-	model.add(Convolution2D(64,kernel_size=(3,3),activation="relu",padding='valid'))
+	model.add(Convolution2D(64//2,kernel_size=(3,3),activation="relu",padding='valid'))
 	model.add(MaxPooling2D())
-	model.add(Convolution2D(64,kernel_size=(1,1),activation="relu",padding='valid'))
+	model.add(Convolution2D(64//2,kernel_size=(1,1),activation="relu",padding='valid'))
 	model.add(Flatten())
 	model.add(Dense(100))
 	model.add(Dropout(keep_prob))
@@ -64,9 +64,11 @@ def should_use_measurement():
 #data_dir = "/home/mw/data"
 #data_dir = "/home/mw/training2"
 
-steering_correction = 0.1
+steering_correction = 1.3
 data_dir_prefix = "/home/mw/p3"
 data_dirs = ["data",
+			 "fix1",
+			 "fix3",
 			 #"recovery",
 			]
 
@@ -74,6 +76,7 @@ images = []
 measurements = []
 previous_length = 0
 
+from keras.preprocessing.image import img_to_array, load_img
 for current_dir in data_dirs:
 	data_dir = os.path.join(data_dir_prefix, current_dir)
 	t1 = time.time()
@@ -88,28 +91,32 @@ for current_dir in data_dirs:
 	for line in lines:
 		source_path = line[0]
 		filename = source_path.split('/')[-1]
-		image_left = cv2.imread(os.path.join(data_dir, "IMG", line[1].split('/')[-1]))
-		image_right = cv2.imread(os.path.join(data_dir, "IMG", line[2].split('/')[-1]))
+		#image_left = cv2.imread(os.path.join(data_dir, "IMG", line[1].split('/')[-1]))
+		#image_right = cv2.imread(os.path.join(data_dir, "IMG", line[2].split('/')[-1]))
 		current_path = os.path.join(data_dir, "IMG", filename)
-		image = cv2.imread(current_path)
+		#image = cv2.imread(current_path)
+		image = load_img(current_path)
+		image = img_to_array(image)
+		#print(image)
 		measurement = float(line[3])
-		measurement_left = measurement + steering_correction
-		measurement_right = measurement - steering_correction
+		measurement_left = measurement * steering_correction
+		measurement_right = -measurement * steering_correction
 		if measurement != 0.0 or should_use_measurement():
 			measurements.append(measurement)
 			images.append(image)
 			# add flipped images
-			images.append(cv2.flip(image,1))
+			#images.append(cv2.flip(image,1))
+			images.append(np.fliplr(image))
 			measurements.append(measurement*-1.0)
 			# add left/right images
-			measurements.append(measurement_left)
-			images.append(image_left)
-			measurements.append(measurement_right)
-			images.append(image_right)
-			measurements.append(-1.0*measurement_left)
-			images.append(cv2.flip(image_left,1))
-			measurements.append(-1.0*measurement_right)
-			images.append(cv2.flip(image_right,1))
+		#	measurements.append(measurement_left)
+		#	images.append(image_left)
+		#	measurements.append(measurement_right)
+		#	images.append(image_right)
+		#	measurements.append(-1.0*measurement_left)
+		#	images.append(cv2.flip(image_left,1))
+		#	measurements.append(-1.0*measurement_right)
+		#	images.append(cv2.flip(image_right,1))
 		else:
 			skipped += 1
 
