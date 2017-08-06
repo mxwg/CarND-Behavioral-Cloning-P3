@@ -68,6 +68,7 @@ steering_correction = 1.3
 data_dir_prefix = "/home/mw/p3"
 data_dirs = ["data",
 			 "fix1",
+			 "fix2",
 			 "fix3",
 			 #"recovery",
 			]
